@@ -4,10 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="./stylesheet/style.css" />
     <title>Bookstore</title>
   </head>
   <body>
-    <div id="app_container"></div>
+    <div id="app"></div>
 
     <!---->
     <!-- Cargar React. -->
@@ -26,14 +33,120 @@
     <!-- Cargamos nuestro componente de React. -->
     <!---->
     <script type="text/babel">
-      class App extends React.component {
-        constructor(props) {} // Here goes data variables
+      class App extends React.Component {
+        constructor(props) {
+          super(props);
+          // Here goes data variables
+          this.state = {
+            listBooks: [],
+            searchValue: ""
+          };
+        }
+        componentDidMount() {
+          // Here goes fetch and asyncronous functions
+          fetch("https://api.myjson.com/bins/zyv02")
+            .then((res) => res.json())
+            .then((data) => {
+              console.log(data);
+              this.setState({
+                listBooks: data.books
+              });
+            });
+        }
 
-        componentDidMount() {} // Here goes fetch and asyncronous functions
+        renderBooks = (book) => {
+          const { search } = this.state;
+          console.log("here");
+        };
 
-        render() {} // Here goes the "html" elements to be displayed
+        search = (result) => {
+          this.setState({ searchValue: result.target.value });
+        };
+
+        render() {
+          // Here goes the "html" elements to be displayed
+          let searchBooks = this.state.listBooks.filter((book) => {
+            return book.description.includes(
+              this.state.searchValue.toLocaleLowerCase()
+            ) || book.tite.includes(
+              this.state.searchValue.toLocaleLowerCase()
+          });
+
+          return (
+            <div className="d-flex flex-column">
+              <nav className="navbar navbar-light bg-light justify-content-between">
+                <img
+                  id="logo"
+                  src="./images/logo.jpg"
+                  alt="logo"
+                  className="navbar-brand"
+                ></img>
+                <form className="form-inline">
+                  <input
+                    className="form-control mr-sm-2"
+                    type="search"
+                    placeholder="Search"
+                    aria-label="Search"
+                    onChange={this.search}
+                  />
+                  <button
+                    className="btn btn-outline-success my-2 my-sm-0"
+                    type="submit"
+                  >
+                    Search
+                  </button>
+                </form>
+              </nav>
+              <div className="d-flex flex-row flex-wrap justify-content-around">
+                {searchBooks.map((book, i) => {
+                  return (
+                    <div className="card-wrapper" key={i}>
+                      <div className="card-holder my-4" key={i}>
+                        <div className="card-front d-flex flex-column align-items-center justify-content-center mr-0">
+                          <img
+                            className="card-img fluid px-2"
+                            src={book.cover}
+                            alt="{book.title} cover"
+                          />
+                        </div>
+                        <div className="card-bck d-flex flex-wrap text-dark justify-content-center align-content-around">
+                          <img
+                            className="img-thumbnail card cover fluid align-self-center"
+                            src={book.detail}
+                            alt="{book.title} detail"
+                          />
+                          <div className="card-body">
+                            <h5 className="card-title">
+                              {i + 1}. {book.title}
+                            </h5>
+                            <p className="card-text">{book.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        }
       }
       ReactDOM.render(<App />, document.getElementById("app"));
     </script>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>
