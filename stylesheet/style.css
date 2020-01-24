@@ -18,18 +18,6 @@
   height: 480px;
   transform-style: preserve-3d;
   transition: all 0.5s ease;
-  background-color: rgb(245, 245, 245);
-  background-image: linear-gradient(
-      90deg,
-      transparent 49px,
-      #abced4 49px,
-      #abced4 51px,
-      transparent 51px
-    ),
-    linear-gradient(#eee 0.1em, transparent 0.1em);
-  background-size: 100% 1.2em;
-  box-shadow: rgba(36, 35, 35, 0.4) 2px 2px 2px 1px;
-  border-radius: 5px;
 }
 
 .card-front {
@@ -51,4 +39,15 @@
 
 .card-wrapper:hover .card-holder {
   transform: rotateY(180deg);
+}
+
+.divider {
+  width: 75%;
+  border-radius: 5px;
+  border: 2px solid rgb(49, 49, 49);
+  margin: 2rem 0;
+}
+
+.btn-lg {
+  font-size: 2rem;
 }

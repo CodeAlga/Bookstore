@@ -10,6 +10,11 @@
       integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css"
+    />
+
     <link rel="stylesheet" href="./stylesheet/style.css" />
     <title>Bookstore</title>
   </head>
@@ -39,52 +44,121 @@
           // Here goes data variables
           this.state = {
             listBooks: [],
-            searchValue: ""
+            searchValue: "",
+            languageValue: "all",
+            url: "https://api.myjson.com/bins/1h3vb3"
           };
         }
         componentDidMount() {
           // Here goes fetch and asyncronous functions
-          fetch("https://api.myjson.com/bins/zyv02")
+          this.fetchData();
+        }
+
+        fetchData = () => {
+          fetch(this.state.url)
             .then((res) => res.json())
             .then((data) => {
+              console.log(data.books);
+
               this.setState({
-                listBooks: data.books
+                listBooks: data.books,
+                searchBooks: data.books
               });
             });
+        };
+
+        componentDidUpdate(prevProps, prevState) {
+          console.log("State", prevState.url, prevProps.url);
+
+          // Uso tipico (no olvides de comparar los props):
+          if (this.state.url !== prevState.url) {
+            console.log("in");
+
+            this.fetchData();
+          }
         }
+
+        url = (value) => {
+          if (value.target.value == "es") {
+            this.setState({ url: "https://api.myjson.com/bins/1h3vb3" });
+          } else if (value.target.value == "en") {
+            this.setState({ url: "https://api.myjson.com/bins/zyv02" });
+          }
+        };
 
         renderBooks = (book) => {
           const { search } = this.state;
         };
 
-        search = (result) => {
-          this.setState({ searchValue: result.target.value });
+        search = (value) => {
+          this.setState({ searchValue: value.target.value });
+        };
+
+        language = (value) => {
+          this.setState({ languageValue: value.target.value });
         };
 
         render() {
           // Here goes the "html" elements to be displayed
           /* let searchBooks = this.state.listBooks.filter((book) => {
-            return book.title
-              .toLowerCase()
-              .includes(this.state.searchValue.toLowerCase());
-          }); */
+                       return book.title
+                         .toLowerCase()
+                         .includes(this.state.searchValue.toLowerCase());
+                     }); */
+
           const { searchValue, listBooks } = this.state;
           const lowercasedFilter = searchValue.toLowerCase();
           const searchBooks = listBooks.filter((book) => {
-            return Object.keys(book).some((key) =>
-              book[key].toLowerCase().includes(lowercasedFilter)
-            );
+            if (this.state.languageValue == "all" || "") {
+              return Object.keys(book).some((key) =>
+                book[key].toLowerCase().includes(lowercasedFilter)
+              );
+            } else {
+              return Object.keys(book).some(
+                (key) =>
+                  book[key].toLowerCase().includes(lowercasedFilter) &&
+                  (book.language == this.state.languageValue ||
+                    book.idioma == this.state.languageValue)
+              );
+            }
           });
-          console.log(this.state);
+
+          $('[data-fancybox="gallery"]').fancybox({
+            // Options will go here
+          });
+
           return (
             <div className="d-flex flex-column">
-              <nav className="navbar navbar-light bg-light justify-content-between">
+              <nav className="navbar navbar-light bg-light d-flex flex-row justify-content-between">
                 <img
                   id="logo"
                   src="./images/logo.jpg"
                   alt="logo"
                   className="navbar-brand"
                 ></img>
+                <div className="input-group col-5">
+                  <div className="input-group-prepend">
+                    <label
+                      className="input-group-text"
+                      htmlFor="inputGroupSelect01"
+                    >
+                      Book Language
+                    </label>
+                  </div>
+                  <select
+                    id="selectedLang"
+                    className="custom-select"
+                    id="inputGroupSelect01"
+                    onChange={this.language}
+                  >
+                    <option defaultValue value="all">
+                      All languages
+                    </option>
+                    <option value="es">Spanish</option>
+                    <option value="en">English</option>
+                    <option value="ca">Catalan</option>
+                  </select>
+                </div>
                 <form className="form-inline">
                   <input
                     className="form-control mr-sm-2"
@@ -93,13 +167,25 @@
                     aria-label="Search"
                     onChange={this.search}
                   />
-                  <button
-                    className="btn btn-outline-success my-2 my-sm-0"
-                    type="submit"
-                  >
-                    Search
-                  </button>
                 </form>
+                <div>
+                  <button
+                    type="button"
+                    value="en"
+                    onClick={this.url}
+                    className="btn btn-success btn-lg m-2"
+                  >
+                    🇬🇧
+                  </button>
+                  <button
+                    type="button"
+                    value="es"
+                    onClick={this.url}
+                    className="btn btn-success btn-lg m-2"
+                  >
+                    🇪🇸
+                  </button>
+                </div>
               </nav>
               <div className="d-flex flex-row flex-wrap justify-content-around">
                 {searchBooks.map((book, i) => {
@@ -108,22 +194,34 @@
                       <div className="card-holder my-4" key={i}>
                         <div className="card-front d-flex flex-column align-items-center justify-content-center mr-0">
                           <img
-                            className="card-img fluid px-2"
-                            src={book.cover}
-                            alt="{book.title} cover"
+                            className="card-img fluid px-2 align-self-center"
+                            src={book.cover || book.portada}
+                            alt="{book.title || book.titulo} cover"
                           />
+                          <div className="divider"></div>
+                          <h5 className="card-title p-2 text-center align-self-baseline">
+                            {i + 1}. {book.title || book.titulo}
+                          </h5>
                         </div>
                         <div className="card-bck d-flex flex-wrap text-dark justify-content-center align-content-around">
-                          <img
-                            className="img-thumbnail card cover fluid align-self-center"
-                            src={book.detail}
-                            alt="{book.title} detail"
-                          />
+                          <a
+                            href={book.detail || book.detalle}
+                            data-fancybox="gallery"
+                            data-caption={book.title || book.titulo}
+                          >
+                            <img
+                              className="img-thumbnail card cover fluid align-self-center"
+                              src={book.detail || book.detalle}
+                              alt="{book.title} detail"
+                            />
+                          </a>
                           <div className="card-body">
                             <h5 className="card-title">
-                              {i + 1}. {book.title}
+                              {i + 1}. {book.title || book.titulo}
                             </h5>
-                            <p className="card-text">{book.description}</p>
+                            <p className="card-text">
+                              {book.description || book.descripcion}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -152,5 +250,6 @@
       integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
       crossorigin="anonymous"
     ></script>
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
   </body>
 </html>
