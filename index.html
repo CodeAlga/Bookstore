@@ -58,22 +58,15 @@
           fetch(this.state.url)
             .then((res) => res.json())
             .then((data) => {
-              console.log(data.books);
-
               this.setState({
-                listBooks: data.books,
-                searchBooks: data.books
+                listBooks: data.books
               });
             });
         };
 
         componentDidUpdate(prevProps, prevState) {
-          console.log("State", prevState.url, prevProps.url);
-
           // Uso tipico (no olvides de comparar los props):
           if (this.state.url !== prevState.url) {
-            console.log("in");
-
             this.fetchData();
           }
         }
@@ -84,10 +77,6 @@
           } else if (value.target.value == "en") {
             this.setState({ url: "https://api.myjson.com/bins/zyv02" });
           }
-        };
-
-        renderBooks = (book) => {
-          const { search } = this.state;
         };
 
         search = (value) => {
